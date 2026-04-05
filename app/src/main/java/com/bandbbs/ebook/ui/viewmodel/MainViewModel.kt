@@ -39,50 +39,7 @@ import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import java.io.File
 
-data class BandSettingsState(
-    val fontSize: Int = 30,
-    val opacity: Int = 100,
-    val boldEnabled: Boolean = true,
-    val verticalMargin: Int = 10,
-    val timeFormat: String = "24h",
-    val readMode: String = "scroll",
-    val txtSizePage: Int = 400,
-    val showProgressBar: Boolean = true,
-    val showProgressBarPercent: Boolean = false,
-    val progressBarOpacity: Int = 100,
-    val progressBarHeight: Int = 8,
-    val preventParagraphSplitting: Boolean = false,
-    val brightness: Int = 128,
-    val brightnessFollowSystem: Boolean = true,
-    val alwaysShowTime: Boolean = false,
-    val alwaysShowBattery: Boolean = true,
-    val alwaysShowTimeSensitivity: Int = 200,
-    val chapterStartEmptyLines: Boolean = false,
-    val chapterStartNumber: Boolean = false,
-    val chapterStartName: Boolean = false,
-    val chapterStartWordCount: Boolean = false,
-    val chapterSwitchStyle: String = "button",
-    val chapterSwitchHeight: Int = 80,
-    val chapterSwitchSensitivity: Int = 50,
-    val chapterSwitchShowInfo: Boolean = false,
-    val swipeSensitivity: Int = 80,
-    val swipe: String = "column",
-    val autoReadEnabled: Boolean = false,
-    val autoReadSpeed: Int = 10,
-    val autoReadDistance: Int = 100,
-    val gesture: String = "single",
-    val progressSaveMode: String = "exit",
-    val progressSaveInterval: Int = 10,
-    val shelfMarqueeEnabled: Boolean = false,
-    val bookmarkMarqueeEnabled: Boolean = false,
-    val bookinfoMarqueeEnabled: Boolean = true,
-    val chapterListMarqueeEnabled: Boolean = false,
-    val textReaderMarqueeEnabled: Boolean = false,
-    val detailMarqueeEnabled: Boolean = false,
-    val detailProgressMarqueeEnabled: Boolean = false,
-    val nostalgicPageTurnMode: String = "topBottomClick",
-    val teacherScreenEnabled: Boolean = false
-)
+
 
 data class GlobalLoadingState(
     val isLoading: Boolean = false,
@@ -100,8 +57,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val FIRST_SYNC_CONFIRMED_KEY = "first_sync_confirmed"
     private val FIRST_SYNC_READING_DATA_CONFIRMED_KEY = "first_sync_reading_data_confirmed"
 
-    private val _connectionState = MutableStateFlow(ConnectionState())
-    val connectionState = _connectionState.asStateFlow()
+
 
     private val _books = MutableStateFlow<List<Book>>(emptyList())
     val books = _books.asStateFlow()
@@ -119,8 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _expandedCategories = MutableStateFlow<Set<String>>(emptySet())
     val expandedCategories = _expandedCategories.asStateFlow()
 
-    private val _pushState = MutableStateFlow(PushState())
-    val pushState = _pushState.asStateFlow()
+
 
     private val _importState = MutableStateFlow<ImportState?>(null)
     val importState = _importState.asStateFlow()
@@ -153,8 +108,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _booksToDelete = MutableStateFlow<List<Book>>(emptyList())
     val booksToDelete = _booksToDelete.asStateFlow()
 
-    private val _syncOptionsState = MutableStateFlow<SyncOptionsState?>(null)
-    val syncOptionsState = _syncOptionsState.asStateFlow()
+
 
     private val _overwriteConfirmState = MutableStateFlow<OverwriteConfirmState?>(null)
     val overwriteConfirmState = _overwriteConfirmState.asStateFlow()
@@ -162,64 +116,47 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _bookForCoverImport = MutableStateFlow<Book?>(null)
     val bookForCoverImport = _bookForCoverImport.asStateFlow()
 
-    private val _connectionErrorState = MutableStateFlow<ConnectionErrorState?>(null)
-    val connectionErrorState = _connectionErrorState.asStateFlow()
+
 
     private val _categoryState = MutableStateFlow<CategoryState?>(null)
     val categoryState = _categoryState.asStateFlow()
 
-    private val _firstSyncConfirmState = MutableStateFlow<Book?>(null)
-    val firstSyncConfirmState = _firstSyncConfirmState.asStateFlow()
+
 
     private val _editBookInfoState = MutableStateFlow<EditBookInfoState?>(null)
     val editBookInfoState = _editBookInfoState.asStateFlow()
 
-    private val _syncReadingDataState = MutableStateFlow(SyncReadingDataState())
-    val syncReadingDataState = _syncReadingDataState.asStateFlow()
+
 
     private val _syncResultState = MutableStateFlow<SyncResultState?>(null)
     val syncResultState = _syncResultState.asStateFlow()
 
     private var syncReadingDataJob: Job? = null
 
-    private val _versionIncompatibleState = MutableStateFlow<VersionIncompatibleState?>(null)
-    val versionIncompatibleState = _versionIncompatibleState.asStateFlow()
+
 
     private val _updateCheckState = MutableStateFlow(UpdateCheckState())
     val updateCheckState = _updateCheckState.asStateFlow()
 
-    private val _ipCollectionPermissionState = MutableStateFlow(IpCollectionPermissionState())
-    val ipCollectionPermissionState = _ipCollectionPermissionState.asStateFlow()
 
-    private val _bandStorageInfo = MutableStateFlow(BandStorageInfo(isLoading = false))
-    val bandStorageInfo = _bandStorageInfo.asStateFlow()
+
+
 
     private val _backupRestoreState = MutableStateFlow<BackupRestoreResult?>(null)
     val backupRestoreState = _backupRestoreState.asStateFlow()
 
-    private val _bandSettingsState = MutableStateFlow<BandSettingsState?>(null)
-    val bandSettingsState = _bandSettingsState.asStateFlow()
+
 
     private val _globalLoadingState = MutableStateFlow(GlobalLoadingState())
     val globalLoadingState = _globalLoadingState.asStateFlow()
 
-    private val IP_COLLECTION_PERMISSION_KEY = "ip_collection_permission"
-    private val IP_COLLECTION_PERMISSION_ASKED_KEY = "ip_collection_permission_asked"
     private val SHOW_RECENT_IMPORT_KEY = "show_recent_import"
     private val SHOW_RECENT_UPDATE_KEY = "show_recent_update"
-    private val AUTO_CHECK_UPDATES_KEY = "auto_check_updates"
-    private val SHOW_CONNECTION_ERROR_KEY = "show_connection_error"
     private val SHOW_SEARCH_BAR_KEY = "show_search_bar"
     private val THEME_MODE_KEY = "theme_mode"
     private val QUICK_EDIT_CATEGORY_KEY = "quick_edit_category"
-    private val AUTO_MINIMIZE_ON_TRANSFER_KEY = "auto_minimize_on_transfer"
-    private val AUTO_RETRY_ON_TRANSFER_ERROR_KEY = "auto_retry_on_transfer_error"
-    private val HAS_CLICKED_TRANSFER_BUTTON_KEY = "has_clicked_transfer_button"
     private val QUICK_RENAME_CATEGORY_KEY = "quick_rename_category"
     private val LAST_SPLIT_METHOD_KEY = "last_split_method"
-    private val BAND_TRANSFER_ENABLED_KEY = "band_transfer_enabled"
-
-    private var FIRST_AUTO_CHECK = true
 
 
     private val _showRecentImport = MutableStateFlow(prefs.getBoolean(SHOW_RECENT_IMPORT_KEY, true))
@@ -228,17 +165,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _showRecentUpdate = MutableStateFlow(prefs.getBoolean(SHOW_RECENT_UPDATE_KEY, true))
     val showRecentUpdate = _showRecentUpdate.asStateFlow()
 
-    private val _autoCheckUpdates = MutableStateFlow(prefs.getBoolean(AUTO_CHECK_UPDATES_KEY, true))
-    val autoCheckUpdates = _autoCheckUpdates.asStateFlow()
-
-    private val _ipCollectionAllowed =
-        MutableStateFlow(prefs.getBoolean(IP_COLLECTION_PERMISSION_KEY, false))
-    val ipCollectionAllowed = _ipCollectionAllowed.asStateFlow()
-
-    private val _showConnectionError =
-        MutableStateFlow(prefs.getBoolean(SHOW_CONNECTION_ERROR_KEY, true))
-    val showConnectionError = _showConnectionError.asStateFlow()
-
     private val _showSearchBar = MutableStateFlow(prefs.getBoolean(SHOW_SEARCH_BAR_KEY, true))
     val showSearchBar = _showSearchBar.asStateFlow()
 
@@ -246,25 +172,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MutableStateFlow(prefs.getBoolean(QUICK_EDIT_CATEGORY_KEY, false))
     val quickEditCategoryEnabled = _quickEditCategoryEnabled.asStateFlow()
 
-    private val _autoMinimizeOnTransfer =
-        MutableStateFlow(prefs.getBoolean(AUTO_MINIMIZE_ON_TRANSFER_KEY, false))
-    val autoMinimizeOnTransfer = _autoMinimizeOnTransfer.asStateFlow()
-
-    private val _autoRetryOnTransferError =
-        MutableStateFlow(prefs.getBoolean(AUTO_RETRY_ON_TRANSFER_ERROR_KEY, false))
-    val autoRetryOnTransferError = _autoRetryOnTransferError.asStateFlow()
-
-    private val _hasClickedTransferButton =
-        MutableStateFlow(prefs.getBoolean(HAS_CLICKED_TRANSFER_BUTTON_KEY, false))
-    val hasClickedTransferButton = _hasClickedTransferButton.asStateFlow()
-
     private val _quickRenameCategoryEnabled =
         MutableStateFlow(prefs.getBoolean(QUICK_RENAME_CATEGORY_KEY, false))
     val quickRenameCategoryEnabled = _quickRenameCategoryEnabled.asStateFlow()
-
-    private val _bandTransferEnabled =
-        MutableStateFlow(prefs.getBoolean(BAND_TRANSFER_ENABLED_KEY, true))
-    val bandTransferEnabled = _bandTransferEnabled.asStateFlow()
 
     private val _isMultiSelectMode = MutableStateFlow(false)
     val isMultiSelectMode = _isMultiSelectMode.asStateFlow()
@@ -282,23 +192,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
     )
     val themeMode = _themeMode.asStateFlow()
-
-    private val connectionHandler = ConnectionHandler(
-        scope = viewModelScope,
-        connectionState = _connectionState,
-        connectionErrorState = _connectionErrorState,
-        showConnectionError = _showConnectionError,
-        versionIncompatibleState = _versionIncompatibleState,
-        bandTransferEnabled = _bandTransferEnabled
-    ).apply {
-        onBandConnected = { deviceName ->
-            if (FIRST_AUTO_CHECK) autoCheckUpdates()
-            refreshBandStorageInfo()
-        }
-        onBandVersionReceived = { bandVersion ->
-            checkBandUpdateOnly(bandVersion)
-        }
-    }
 
     private val categoryHandler = CategoryHandler(
         prefs = prefs,
@@ -322,19 +215,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         onBooksChanged = { loadBooks() }
     )
 
-    private val pushHandler = PushHandler(
-        db = db,
-        prefs = prefs,
-        scope = viewModelScope,
-        pushState = _pushState,
-        syncOptionsState = _syncOptionsState,
-        firstSyncConfirmState = _firstSyncConfirmState,
-        connectionHandler = connectionHandler,
-        firstSyncConfirmedKey = FIRST_SYNC_CONFIRMED_KEY,
-        appContext = application.applicationContext,
-        autoRetryOnTransferError = _autoRetryOnTransferError
-    )
-
     private val libraryHandler = LibraryHandler(
         application = application,
         db = db,
@@ -352,30 +232,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         loadBooks()
-        performInitialUpdateCheck()
     }
 
-    private fun performInitialUpdateCheck() {
-        val autoCheckEnabled = prefs.getBoolean(AUTO_CHECK_UPDATES_KEY, true)
-        if (!autoCheckEnabled) {
-            return
-        }
 
-        val ipCollectionAllowed = prefs.getBoolean(IP_COLLECTION_PERMISSION_KEY, false)
-        val hasAskedBefore = prefs.getBoolean(IP_COLLECTION_PERMISSION_ASKED_KEY, false)
-
-        if (!hasAskedBefore) {
-            _ipCollectionPermissionState.value = IpCollectionPermissionState(
-                showSheet = true,
-                isFirstTime = true
-            )
-            return
-        }
-
-        if (hasAskedBefore && ipCollectionAllowed) {
-            performUpdateCheck(isAutoCheck = true)
-        }
-    }
 
 
     fun setExpandedBook(path: String?) {
@@ -467,38 +326,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setConnection(connection: InterHandshake) = connectionHandler.setConnection(connection)
 
-    fun reconnect() = connectionHandler.reconnect()
-
-    fun refreshBandStorageInfo() {
-        if (!connectionHandler.isConnected()) {
-            _bandStorageInfo.value = _bandStorageInfo.value.copy(isLoading = false)
-            return
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _bandStorageInfo.value = _bandStorageInfo.value.copy(isLoading = true)
-                val fileConnection = connectionHandler.getFileConnection()
-                fileConnection.onStorageInfo = { storageInfo ->
-                    _bandStorageInfo.value = BandStorageInfo(
-                        product = storageInfo.product,
-                        totalStorage = storageInfo.totalStorage,
-                        availableStorage = storageInfo.availableStorage,
-                        reservedStorage = storageInfo.reservedStorage,
-                        usedStorage = storageInfo.usedStorage,
-                        actualAvailable = storageInfo.actualAvailable,
-                        isLoading = false
-                    )
-                }
-                fileConnection.getStorageInfo()
-            } catch (e: Exception) {
-                _bandStorageInfo.value = BandStorageInfo(isLoading = false)
-            }
-        }
-    }
-
-    fun dismissConnectionError() = connectionHandler.dismissConnectionError()
 
     fun startImport(uri: Uri) = importHandler.startImport(uri)
 
@@ -546,154 +374,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun cancelDeleteBook() = libraryHandler.cancelDeleteBook()
 
-    fun deleteBandBook(book: Book) {
-        val fileConn = runCatching { connectionHandler.getFileConnection() }.getOrElse {
-            Log.e("MainViewModel", "Cannot get file connection")
-            return
-        }
 
-        if (fileConn.busy) {
-            Log.w("MainViewModel", "File connection is busy")
-            return
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val success = fileConn.deleteBook(
-                    bookName = book.name,
-                    onSuccess = { message ->
-                        Log.d("MainViewModel", "Delete band book success: $message")
-                    },
-                    onError = { errorMessage ->
-                        Log.e("MainViewModel", "Delete band book error: $errorMessage")
-                    }
-                )
-                Log.d("MainViewModel", "Delete band book result: $success")
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to delete band book", e)
-            }
-        }
-
-        libraryHandler.cancelDeleteBook()
-    }
-
-    fun startPush(book: Book) {
-        if (!_bandTransferEnabled.value) {
-            return
-        }
-        if (!_hasClickedTransferButton.value) {
-            prefs.edit().putBoolean(HAS_CLICKED_TRANSFER_BUTTON_KEY, true).apply()
-            _hasClickedTransferButton.value = true
-        }
-        pushHandler.startPush(book)
-    }
-
-    fun syncCoverOnly(book: Book) = pushHandler.syncCoverOnly(book)
-
-    fun confirmPush(book: Book, selectedChapterIndices: Set<Int>, syncCover: Boolean = false) =
-        pushHandler.confirmPush(book, selectedChapterIndices, syncCover)
-
-    fun confirmFirstSync() = pushHandler.confirmFirstSync()
-
-    fun cancelFirstSyncConfirm() = pushHandler.cancelFirstSyncConfirm()
-
-    fun cancelPush() = pushHandler.cancelPush()
-
-    fun resetPushState() = pushHandler.resetPushState()
-
-    fun deleteBandChapters(book: Book, chapterIndices: Set<Int>) {
-        val fileConn = runCatching { connectionHandler.getFileConnection() }.getOrElse {
-            Log.e("MainViewModel", "Cannot get file connection")
-            return
-        }
-
-        if (fileConn.busy) {
-            Log.w("MainViewModel", "File connection is busy")
-            return
-        }
-
-        _pushState.value = PushState(
-            book = book,
-            progress = 0.0,
-            preview = "准备删除章节...",
-            transferLog = listOf("准备删除 ${chapterIndices.size} 个章节..."),
-            statusText = "准备删除...",
-            isTransferring = true
-        )
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val success = fileConn.deleteChapters(
-                    bookName = book.name,
-                    chapterIndices = chapterIndices.toList(),
-                    onProgress = { progress, message ->
-                        viewModelScope.launch(Dispatchers.Main) {
-                            val currentState = _pushState.value
-                            val newLog = (currentState.transferLog + message).takeLast(100)
-                            _pushState.value = currentState.copy(
-                                progress = progress,
-                                preview = message,
-                                statusText = message,
-                                transferLog = newLog
-                            )
-                        }
-                    },
-                    onSuccess = { message ->
-                        viewModelScope.launch(Dispatchers.Main) {
-                            val currentState = _pushState.value
-                            val newLog = (currentState.transferLog + message).takeLast(100)
-                            _pushState.value = currentState.copy(
-                                progress = 1.0,
-                                statusText = message,
-                                isFinished = true,
-                                isSuccess = true,
-                                isTransferring = false,
-                                transferLog = newLog
-                            )
-                            pushHandler.refreshBookStatus(book)
-                        }
-                    },
-                    onError = { errorMessage ->
-                        viewModelScope.launch(Dispatchers.Main) {
-                            val currentState = _pushState.value
-                            val newLog =
-                                (currentState.transferLog + "错误: $errorMessage").takeLast(100)
-                            _pushState.value = currentState.copy(
-                                statusText = errorMessage,
-                                isFinished = true,
-                                isSuccess = false,
-                                isTransferring = false,
-                                transferLog = newLog
-                            )
-                        }
-                    }
-                )
-
-                if (!success) {
-                    withContext(Dispatchers.Main) {
-                        val currentState = _pushState.value
-                        _pushState.value = currentState.copy(
-                            statusText = "删除失败",
-                            isFinished = true,
-                            isSuccess = false,
-                            isTransferring = false
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Error deleting chapters from band", e)
-                withContext(Dispatchers.Main) {
-                    val currentState = _pushState.value
-                    _pushState.value = currentState.copy(
-                        statusText = "删除失败: ${e.message}",
-                        isFinished = true,
-                        isSuccess = false,
-                        isTransferring = false
-                    )
-                }
-            }
-        }
-    }
 
     fun showChapterList(book: Book) = libraryHandler.showChapterList(book)
 
@@ -914,27 +595,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
                     if (updatedEntity != null) {
-                        if (connectionHandler.isConnected()) {
-                            try {
-                                val fileConn = connectionHandler.getFileConnection()
-                                fileConn.updateBookInfo(
-                                    bookName = updatedEntity.name,
-                                    author = updatedEntity.author,
-                                    summary = updatedEntity.summary,
-                                    bookStatus = updatedEntity.bookStatus,
-                                    category = updatedEntity.category,
-                                    localCategory = updatedEntity.localCategory
-                                )
-                                Log.d(
-                                    "MainViewModel",
-                                    "Book info updated on watch: ${updatedEntity.name}"
-                                )
-                            } catch (e: Exception) {
-                                Log.e("MainViewModel", "Failed to update book info on watch", e)
-                            }
-                        }
-
-
                         withContext(Dispatchers.Main) {
                             _editBookInfoState.value =
                                 EditBookInfoState(updatedEntity, isResyncing = false)
@@ -972,49 +632,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun syncAllReadingData() {
-        Log.d("MainViewModel", "syncAllReadingData() called")
-        if (!_bandTransferEnabled.value) {
-            Log.w("MainViewModel", "Cannot sync: band transfer disabled")
-            _syncReadingDataState.value = SyncReadingDataState(
-                isSyncing = false,
-                statusText = "手环功能已关闭",
-                progress = 0f
-            )
-            return
-        }
-        if (!connectionHandler.isConnected()) {
-            Log.w("MainViewModel", "Cannot sync: band not connected")
-            _syncReadingDataState.value = SyncReadingDataState(
-                isSyncing = false,
-                statusText = "手环未连接",
-                progress = 0f
-            )
-            return
-        }
 
-        val hasConfirmedFirstSync = prefs.getBoolean(FIRST_SYNC_READING_DATA_CONFIRMED_KEY, false)
-        if (!hasConfirmedFirstSync) {
-            Log.d("MainViewModel", "Showing confirm dialog for first time")
-            _syncReadingDataState.value = _syncReadingDataState.value.copy(showConfirmDialog = true)
-        } else {
-            Log.d("MainViewModel", "First sync already confirmed, showing mode dialog directly")
-            _syncReadingDataState.value = _syncReadingDataState.value.copy(showModeDialog = true)
-        }
-    }
 
-    fun confirmSyncReadingData() {
-        Log.d("MainViewModel", "confirmSyncReadingData() called")
-        prefs.edit().putBoolean(FIRST_SYNC_READING_DATA_CONFIRMED_KEY, true).apply()
-        _syncReadingDataState.value = _syncReadingDataState.value.copy(
-            showConfirmDialog = false,
-            showModeDialog = true
-        )
-    }
 
-    fun cancelSyncReadingDataConfirm() {
-        _syncReadingDataState.value = _syncReadingDataState.value.copy(showConfirmDialog = false)
-    }
 
     fun setSyncModeAndStart(mode: SyncMode) {
         setSyncModesAndStart(mode, mode)
@@ -1690,26 +1310,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun cancelSyncReadingData() {
-        syncReadingDataJob?.cancel()
-        syncReadingDataJob = null
-    }
 
-    fun clearSyncReadingDataState() {
-        _syncReadingDataState.value = SyncReadingDataState()
-    }
-
-    fun dismissSyncResult() {
-        _syncResultState.value = null
-    }
-
-    fun dismissSyncModeDialog() {
-        _syncReadingDataState.value = _syncReadingDataState.value.copy(showModeDialog = false)
-    }
-
-    fun dismissVersionIncompatible() {
-        _versionIncompatibleState.value = null
-    }
 
     fun clearAllReadingTimeData() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -1826,84 +1427,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun checkForUpdates(isAutoCheck: Boolean = false) {
-
-        val ipCollectionAllowed = prefs.getBoolean(IP_COLLECTION_PERMISSION_KEY, false)
-        val hasAskedBefore = prefs.getBoolean(IP_COLLECTION_PERMISSION_ASKED_KEY, false)
-
-        if (!hasAskedBefore) {
-
-            _ipCollectionPermissionState.value = IpCollectionPermissionState(
-                showSheet = true,
-                isFirstTime = true
-            )
-            return
-        }
-
-        if (!ipCollectionAllowed) {
-
-            if (!isAutoCheck) {
-                _ipCollectionPermissionState.value = IpCollectionPermissionState(
-                    showSheet = true,
-                    isFirstTime = false
-                )
-            }
-            return
-        }
-
-
-        performUpdateCheck(isAutoCheck)
-    }
-
-
-    fun autoCheckUpdates() {
-        val ipCollectionAllowed = prefs.getBoolean(IP_COLLECTION_PERMISSION_KEY, false)
-        if (!ipCollectionAllowed) {
-            return
-        }
-
-        checkForUpdates(isAutoCheck = true)
-        FIRST_AUTO_CHECK = false
-    }
-
-    fun onIpCollectionPermissionResult(allowed: Boolean) {
-        val editor = prefs.edit()
-        editor.putBoolean(IP_COLLECTION_PERMISSION_KEY, allowed)
-        editor.putBoolean(IP_COLLECTION_PERMISSION_ASKED_KEY, true)
-        editor.apply()
-
-        _ipCollectionAllowed.value = allowed
-
-        _ipCollectionPermissionState.value = IpCollectionPermissionState(showSheet = false)
-
-        if (allowed) {
-            performUpdateCheck(isAutoCheck = false)
-        } else {
-            _updateCheckState.value = UpdateCheckState(
-                isChecking = false,
-                errorMessage = "版本更新检测功能已禁用",
-                deviceName = connectionHandler.getDeviceName(),
-                showSheet = true,
-                isAutoCheck = false
-            )
-        }
-    }
-
-    fun dismissIpCollectionPermissionSheet() {
-        _ipCollectionPermissionState.value = IpCollectionPermissionState(showSheet = false)
-    }
-
-    fun setBandTransferEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(BAND_TRANSFER_ENABLED_KEY, enabled).apply()
-        _bandTransferEnabled.value = enabled
-        if (!enabled) {
-            _connectionState.value = ConnectionState()
-            _bandStorageInfo.value = BandStorageInfo(isLoading = false)
-            _syncReadingDataState.value = SyncReadingDataState()
-        }
-    }
-
-
     fun setShowRecentImport(show: Boolean) {
         prefs.edit().putBoolean(SHOW_RECENT_IMPORT_KEY, show).apply()
         _showRecentImport.value = show
@@ -1912,21 +1435,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setShowRecentUpdate(show: Boolean) {
         prefs.edit().putBoolean(SHOW_RECENT_UPDATE_KEY, show).apply()
         _showRecentUpdate.value = show
-    }
-
-    fun setAutoCheckUpdates(enabled: Boolean) {
-        prefs.edit().putBoolean(AUTO_CHECK_UPDATES_KEY, enabled).apply()
-        _autoCheckUpdates.value = enabled
-    }
-
-    fun setIpCollectionAllowed(allowed: Boolean) {
-        prefs.edit().putBoolean(IP_COLLECTION_PERMISSION_KEY, allowed).apply()
-        _ipCollectionAllowed.value = allowed
-    }
-
-    fun setShowConnectionError(show: Boolean) {
-        prefs.edit().putBoolean(SHOW_CONNECTION_ERROR_KEY, show).apply()
-        _showConnectionError.value = show
     }
 
     fun setShowSearchBar(show: Boolean) {
@@ -1944,16 +1452,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _themeMode.value = mode
     }
 
-    fun setAutoMinimizeOnTransfer(enabled: Boolean) {
-        prefs.edit().putBoolean(AUTO_MINIMIZE_ON_TRANSFER_KEY, enabled).apply()
-        _autoMinimizeOnTransfer.value = enabled
-    }
-
-    fun setAutoRetryOnTransferError(enabled: Boolean) {
-        prefs.edit().putBoolean(AUTO_RETRY_ON_TRANSFER_ERROR_KEY, enabled).apply()
-        _autoRetryOnTransferError.value = enabled
-    }
-
     fun setQuickRenameCategory(enabled: Boolean) {
         prefs.edit().putBoolean(QUICK_RENAME_CATEGORY_KEY, enabled).apply()
         _quickRenameCategoryEnabled.value = enabled
@@ -1963,108 +1461,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         categoryHandler.renameCategory(oldName, newName)
     }
 
-    private fun performUpdateCheck(isAutoCheck: Boolean = false) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val deviceName = connectionHandler.getDeviceName()
-
-            if (!isAutoCheck) {
-                _updateCheckState.value = UpdateCheckState(
-                    isChecking = true,
-                    deviceName = deviceName,
-                    showSheet = true,
-                    isAutoCheck = isAutoCheck
-                )
-            }
-
-            try {
-                val context = getApplication<Application>().applicationContext
-                val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-
-                @Suppress("DEPRECATION")
-                val currentVersionCode = packageInfo.versionCode
-
-
-                val androidResult = VersionChecker.checkUpdate(currentVersionCode)
-                val updateInfoList = mutableListOf<VersionChecker.UpdateInfo>()
-                var errorMsg: String? = null
-
-
-                androidResult.fold(
-                    onSuccess = { androidUpdateInfo ->
-                        if (androidUpdateInfo.hasUpdate && androidUpdateInfo.deviceType == "android") {
-                            updateInfoList.add(androidUpdateInfo)
-                        }
-                    },
-                    onFailure = { error ->
-                        errorMsg = "检查手机更新失败: ${error.message}"
-                    }
-                )
-
-                withContext(Dispatchers.Main) {
-                    val hasUpdates = updateInfoList.isNotEmpty()
-                    _updateCheckState.value = UpdateCheckState(
-                        isChecking = false,
-                        updateInfo = updateInfoList.firstOrNull(),
-                        updateInfoList = updateInfoList,
-                        errorMessage = errorMsg,
-                        deviceName = deviceName,
-                        showSheet = !isAutoCheck || hasUpdates,
-                        isAutoCheck = isAutoCheck
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "获取版本信息失败", e)
-                withContext(Dispatchers.Main) {
-                    _updateCheckState.value = UpdateCheckState(
-                        isChecking = false,
-                        errorMessage = "获取版本信息失败: ${e.message}",
-                        deviceName = deviceName,
-                        showSheet = !isAutoCheck,
-                        isAutoCheck = isAutoCheck
-                    )
-                }
-            }
-        }
-    }
-
     fun dismissUpdateCheck() {
         _updateCheckState.value = UpdateCheckState()
-    }
-
-    private fun checkBandUpdateOnly(bandVersion: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val deviceName = connectionHandler.getDeviceName()
-            if (deviceName == null) {
-                Log.w("MainViewModel", "设备名称为空，无法检查手环更新")
-                return@launch
-            }
-
-            try {
-                val bandResult = VersionChecker.checkBandUpdate(deviceName, bandVersion)
-
-                bandResult.fold(
-                    onSuccess = { bandUpdateInfo ->
-                        if (bandUpdateInfo.hasUpdate && bandUpdateInfo.deviceType == "band") {
-                            withContext(Dispatchers.Main) {
-                                _updateCheckState.value = UpdateCheckState(
-                                    isChecking = false,
-                                    updateInfo = bandUpdateInfo,
-                                    updateInfoList = listOf(bandUpdateInfo),
-                                    deviceName = deviceName,
-                                    showSheet = true,
-                                    isAutoCheck = true
-                                )
-                            }
-                        }
-                    },
-                    onFailure = { error ->
-                        Log.e("MainViewModel", "检查手环更新失败", error)
-                    }
-                )
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "检查手环更新异常", e)
-            }
-        }
     }
 
     private val json = kotlinx.serialization.json.Json {
@@ -2377,245 +1775,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _backupRestoreState.value = null
     }
 
-    fun loadBandSettings() {
-        _globalLoadingState.value =
-            GlobalLoadingState(isLoading = true, message = "正在加载手环设置...")
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val conn = connectionHandler.getFileConnection()
-                val settings = conn.getSettings(
-                    listOf(
-                        "EBOOK_FONT", "EBOOK_OPACITY", "EBOOK_BOLD_ENABLED",
-                        "EBOOK_VERTICAL_MARGIN", "EBOOK_TIME_FORMAT", "EBOOK_READ_MODE",
-                        "EBOOK_TXTSZPAGE", "EBOOK_SHOW_PROGRESS_BAR",
-                        "EBOOK_SHOW_PROGRESS_BAR_PERCENT", "EBOOK_PROGRESS_BAR_OPACITY",
-                        "EBOOK_PROGRESS_BAR_HEIGHT", "EBOOK_PREVENT_PARAGRAPH_SPLITTING",
-                        "EBOOK_BRIGHTNESS",
-                        "EBOOK_BRIGHTNESS_FOLLOW_SYSTEM", "EBOOK_ALWAYS_SHOW_TIME",
-                        "EBOOK_ALWAYS_SHOW_BATTERY", "EBOOK_ALWAYS_SHOW_TIME_SENSITIVITY",
-                        "EBOOK_CHAPTER_START_EMPTY_LINES", "EBOOK_CHAPTER_START_NUMBER",
-                        "EBOOK_CHAPTER_START_NAME", "EBOOK_CHAPTER_START_WORD_COUNT",
-                        "EBOOK_CHAPTER_SWITCH_STYLE", "EBOOK_CHAPTER_SWITCH_HEIGHT",
-                        "EBOOK_CHAPTER_SWITCH_SENSITIVITY", "EBOOK_CHAPTER_SWITCH_SHOW_INFO",
-                        "EBOOK_SWIPE_SENSITIVITY", "EBOOK_SWIPE", "EBOOK_AUTO",
-                        "EBOOK_AUTO_READ_DISTANCE", "EBOOK_GESTURE",
-                        "EBOOK_PROGRESS_SAVE_MODE", "EBOOK_PROGRESS_SAVE_INTERVAL",
-                        "EBOOK_SHELF_MARQUEE_ENABLED", "EBOOK_BOOKMARK_MARQUEE_ENABLED",
-                        "EBOOK_BOOKINFO_MARQUEE_ENABLED", "EBOOK_CHAPTER_LIST_MARQUEE_ENABLED",
-                        "EBOOK_TEXT_READER_MARQUEE_ENABLED", "EBOOK_DETAIL_MARQUEE_ENABLED",
-                        "EBOOK_DETAIL_PROGRESS_MARQUEE_ENABLED", "EBOOK_NOSTALGIC_PAGE_TURN_MODE",
-                        "EBOOK_TEACHER_SCREEN_ENABLED"
-                    )
-                )
 
-                val autoReadData = try {
-                    settings["EBOOK_AUTO"]?.takeIf { it.isNotEmpty() }?.let { json ->
-                        val jsonObj = JSONObject(json)
-                        Pair(jsonObj.optBoolean("enable", false), jsonObj.optInt("speed", 10))
-                    } ?: Pair(false, 10)
-                } catch (e: Exception) {
-                    Pair(false, 10)
-                }
-
-                withContext(Dispatchers.Main) {
-                    _bandSettingsState.value = BandSettingsState(
-                        fontSize = settings["EBOOK_FONT"]?.takeIf { it.isNotEmpty() }?.toIntOrNull()
-                            ?: 30,
-                        opacity = settings["EBOOK_OPACITY"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 100,
-                        boldEnabled = settings["EBOOK_BOLD_ENABLED"]?.takeIf { it.isNotEmpty() }
-                            ?.let { it != "false" } ?: true,
-                        verticalMargin = settings["EBOOK_VERTICAL_MARGIN"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 10,
-                        timeFormat = settings["EBOOK_TIME_FORMAT"]?.takeIf { it.isNotEmpty() }
-                            ?: "24h",
-                        readMode = settings["EBOOK_READ_MODE"]?.takeIf { it.isNotEmpty() }
-                            ?: "scroll",
-                        txtSizePage = settings["EBOOK_TXTSZPAGE"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 400,
-                        showProgressBar = settings["EBOOK_SHOW_PROGRESS_BAR"]?.takeIf { it.isNotEmpty() }
-                            ?.let { it == "true" } ?: true,
-                        showProgressBarPercent = settings["EBOOK_SHOW_PROGRESS_BAR_PERCENT"]?.takeIf { it.isNotEmpty() } == "true",
-                        progressBarOpacity = settings["EBOOK_PROGRESS_BAR_OPACITY"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 100,
-                        progressBarHeight = settings["EBOOK_PROGRESS_BAR_HEIGHT"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 8,
-                        preventParagraphSplitting = settings["EBOOK_PREVENT_PARAGRAPH_SPLITTING"]?.takeIf { it.isNotEmpty() } == "true",
-                        brightness = settings["EBOOK_BRIGHTNESS"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 128,
-                        brightnessFollowSystem = settings["EBOOK_BRIGHTNESS_FOLLOW_SYSTEM"]?.takeIf { it.isNotEmpty() }
-                            ?.let { it != "false" } ?: true,
-                        alwaysShowTime = settings["EBOOK_ALWAYS_SHOW_TIME"]?.takeIf { it.isNotEmpty() } == "true",
-                        alwaysShowBattery = settings["EBOOK_ALWAYS_SHOW_BATTERY"]?.takeIf { it.isNotEmpty() }
-                            ?.let { it != "false" } ?: true,
-                        alwaysShowTimeSensitivity = settings["EBOOK_ALWAYS_SHOW_TIME_SENSITIVITY"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 200,
-                        chapterStartEmptyLines = settings["EBOOK_CHAPTER_START_EMPTY_LINES"]?.takeIf { it.isNotEmpty() } == "true",
-                        chapterStartNumber = settings["EBOOK_CHAPTER_START_NUMBER"]?.takeIf { it.isNotEmpty() } == "true",
-                        chapterStartName = settings["EBOOK_CHAPTER_START_NAME"]?.takeIf { it.isNotEmpty() } == "true",
-                        chapterStartWordCount = settings["EBOOK_CHAPTER_START_WORD_COUNT"]?.takeIf { it.isNotEmpty() } == "true",
-                        chapterSwitchStyle = settings["EBOOK_CHAPTER_SWITCH_STYLE"]?.takeIf { it.isNotEmpty() }
-                            ?: "button",
-                        chapterSwitchHeight = settings["EBOOK_CHAPTER_SWITCH_HEIGHT"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 80,
-                        chapterSwitchSensitivity = settings["EBOOK_CHAPTER_SWITCH_SENSITIVITY"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 50,
-                        chapterSwitchShowInfo = settings["EBOOK_CHAPTER_SWITCH_SHOW_INFO"]?.takeIf { it.isNotEmpty() } == "true",
-                        swipeSensitivity = settings["EBOOK_SWIPE_SENSITIVITY"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 80,
-                        swipe = settings["EBOOK_SWIPE"]?.takeIf { it.isNotEmpty() } ?: "column",
-                        autoReadEnabled = autoReadData.first,
-                        autoReadSpeed = autoReadData.second,
-                        autoReadDistance = settings["EBOOK_AUTO_READ_DISTANCE"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 100,
-                        gesture = settings["EBOOK_GESTURE"]?.takeIf { it.isNotEmpty() } ?: "single",
-                        progressSaveMode = settings["EBOOK_PROGRESS_SAVE_MODE"]?.takeIf { it.isNotEmpty() }
-                            ?: "exit",
-                        progressSaveInterval = settings["EBOOK_PROGRESS_SAVE_INTERVAL"]?.takeIf { it.isNotEmpty() }
-                            ?.toIntOrNull() ?: 10,
-                        shelfMarqueeEnabled = settings["EBOOK_SHELF_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() } == "true",
-                        bookmarkMarqueeEnabled = settings["EBOOK_BOOKMARK_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() } == "true",
-                        bookinfoMarqueeEnabled = settings["EBOOK_BOOKINFO_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() }
-                            ?.let { it == "true" } ?: true,
-                        chapterListMarqueeEnabled = settings["EBOOK_CHAPTER_LIST_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() } == "true",
-                        textReaderMarqueeEnabled = settings["EBOOK_TEXT_READER_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() } == "true",
-                        detailMarqueeEnabled = settings["EBOOK_DETAIL_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() } == "true",
-                        detailProgressMarqueeEnabled = settings["EBOOK_DETAIL_PROGRESS_MARQUEE_ENABLED"]?.takeIf { it.isNotEmpty() } == "true",
-                        nostalgicPageTurnMode = settings["EBOOK_NOSTALGIC_PAGE_TURN_MODE"]?.takeIf { it.isNotEmpty() }
-                            ?: "topBottomClick",
-                        teacherScreenEnabled = settings["EBOOK_TEACHER_SCREEN_ENABLED"]?.takeIf { it.isNotEmpty() } == "true"
-                    )
-                    _globalLoadingState.value = GlobalLoadingState(isLoading = false)
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Error loading band settings", e)
-                withContext(Dispatchers.Main) {
-                    _globalLoadingState.value = GlobalLoadingState(isLoading = false)
-                }
-            }
-        }
-    }
-
-    fun updateBandSetting(key: String, value: String) {
-        _bandSettingsState.value?.let { current ->
-            _bandSettingsState.value = when (key) {
-                "EBOOK_FONT" -> current.copy(fontSize = value.toInt())
-                "EBOOK_OPACITY" -> current.copy(opacity = value.toInt())
-                "EBOOK_BOLD_ENABLED" -> current.copy(boldEnabled = value.toBoolean())
-                "EBOOK_VERTICAL_MARGIN" -> current.copy(verticalMargin = value.toInt())
-                "EBOOK_TIME_FORMAT" -> current.copy(timeFormat = value)
-                "EBOOK_READ_MODE" -> current.copy(readMode = value)
-                "EBOOK_TXTSZPAGE" -> current.copy(txtSizePage = value.toInt())
-                "EBOOK_SHOW_PROGRESS_BAR" -> current.copy(showProgressBar = value.toBoolean())
-                "EBOOK_SHOW_PROGRESS_BAR_PERCENT" -> current.copy(showProgressBarPercent = value.toBoolean())
-                "EBOOK_PROGRESS_BAR_OPACITY" -> current.copy(progressBarOpacity = value.toInt())
-                "EBOOK_PREVENT_PARAGRAPH_SPLITTING" -> current.copy(preventParagraphSplitting = value.toBoolean())
-                "EBOOK_BRIGHTNESS" -> current.copy(brightness = value.toInt())
-                "EBOOK_BRIGHTNESS_FOLLOW_SYSTEM" -> current.copy(brightnessFollowSystem = value.toBoolean())
-                "EBOOK_ALWAYS_SHOW_TIME" -> current.copy(alwaysShowTime = value.toBoolean())
-                "EBOOK_ALWAYS_SHOW_BATTERY" -> current.copy(alwaysShowBattery = value.toBoolean())
-                "EBOOK_ALWAYS_SHOW_TIME_SENSITIVITY" -> current.copy(alwaysShowTimeSensitivity = value.toInt())
-                "EBOOK_CHAPTER_START_EMPTY_LINES" -> current.copy(chapterStartEmptyLines = value.toBoolean())
-                "EBOOK_CHAPTER_START_NUMBER" -> current.copy(chapterStartNumber = value.toBoolean())
-                "EBOOK_CHAPTER_START_NAME" -> current.copy(chapterStartName = value.toBoolean())
-                "EBOOK_CHAPTER_START_WORD_COUNT" -> current.copy(chapterStartWordCount = value.toBoolean())
-                "EBOOK_CHAPTER_SWITCH_STYLE" -> current.copy(chapterSwitchStyle = value)
-                "EBOOK_CHAPTER_SWITCH_HEIGHT" -> current.copy(chapterSwitchHeight = value.toInt())
-                "EBOOK_CHAPTER_SWITCH_SENSITIVITY" -> current.copy(chapterSwitchSensitivity = value.toInt())
-                "EBOOK_CHAPTER_SWITCH_SHOW_INFO" -> current.copy(chapterSwitchShowInfo = value.toBoolean())
-                "EBOOK_SWIPE_SENSITIVITY" -> current.copy(swipeSensitivity = value.toInt())
-                "EBOOK_SWIPE" -> current.copy(swipe = value)
-                "EBOOK_AUTO_READ_DISTANCE" -> current.copy(autoReadDistance = value.toInt())
-                "EBOOK_PROGRESS_BAR_HEIGHT" -> current.copy(progressBarHeight = value.toInt())
-                "EBOOK_GESTURE" -> current.copy(gesture = value)
-                "EBOOK_PROGRESS_SAVE_MODE" -> current.copy(progressSaveMode = value)
-                "EBOOK_PROGRESS_SAVE_INTERVAL" -> current.copy(progressSaveInterval = value.toInt())
-                "EBOOK_SHELF_MARQUEE_ENABLED" -> current.copy(shelfMarqueeEnabled = value.toBoolean())
-                "EBOOK_BOOKMARK_MARQUEE_ENABLED" -> current.copy(bookmarkMarqueeEnabled = value.toBoolean())
-                "EBOOK_BOOKINFO_MARQUEE_ENABLED" -> current.copy(bookinfoMarqueeEnabled = value.toBoolean())
-                "EBOOK_CHAPTER_LIST_MARQUEE_ENABLED" -> current.copy(chapterListMarqueeEnabled = value.toBoolean())
-                "EBOOK_TEXT_READER_MARQUEE_ENABLED" -> current.copy(textReaderMarqueeEnabled = value.toBoolean())
-                "EBOOK_DETAIL_MARQUEE_ENABLED" -> current.copy(detailMarqueeEnabled = value.toBoolean())
-                "EBOOK_DETAIL_PROGRESS_MARQUEE_ENABLED" -> current.copy(detailProgressMarqueeEnabled = value.toBoolean())
-                "EBOOK_NOSTALGIC_PAGE_TURN_MODE" -> current.copy(nostalgicPageTurnMode = value)
-                "EBOOK_TEACHER_SCREEN_ENABLED" -> current.copy(teacherScreenEnabled = value.toBoolean())
-                else -> current
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                _globalLoadingState.value =
-                    GlobalLoadingState(isLoading = true, message = "正在保存设置...")
-            }
-            try {
-                withTimeout(5000L) {
-                    val conn = connectionHandler.getFileConnection()
-                    val success = conn.setSettings(mapOf(key to value))
-                    if (!success) {
-                        throw Exception("设备返回失败")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Error updating band setting", e)
-                withContext(Dispatchers.Main) {
-                    android.widget.Toast.makeText(
-                        getApplication(),
-                        "保存超时或失败: ${e.message}",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
-                loadBandSettings()
-            } finally {
-                withContext(Dispatchers.Main) {
-                    _globalLoadingState.value = GlobalLoadingState(isLoading = false)
-                }
-            }
-        }
-    }
-
-    fun updateAutoReadSetting(enabled: Boolean, speed: Int) {
-        _bandSettingsState.value?.let { current ->
-            _bandSettingsState.value =
-                current.copy(autoReadEnabled = enabled, autoReadSpeed = speed)
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                _globalLoadingState.value =
-                    GlobalLoadingState(isLoading = true, message = "正在保存设置...")
-            }
-            try {
-                withTimeout(5000L) {
-                    val conn = connectionHandler.getFileConnection()
-                    val autoValue = JSONObject().apply {
-                        put("enable", enabled)
-                        put("speed", speed)
-                    }.toString()
-                    val success = conn.setSettings(mapOf("EBOOK_AUTO" to autoValue))
-                    if (!success) {
-                        throw Exception("设备返回失败")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Error updating auto read setting", e)
-                withContext(Dispatchers.Main) {
-                    android.widget.Toast.makeText(
-                        getApplication(),
-                        "保存超时或失败: ${e.message}",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
-                loadBandSettings()
-            } finally {
-                withContext(Dispatchers.Main) {
-                    _globalLoadingState.value = GlobalLoadingState(isLoading = false)
-                }
-            }
-        }
-    }
-
-    fun clearBandSettings() {
-        _bandSettingsState.value = null
-    }
 }
