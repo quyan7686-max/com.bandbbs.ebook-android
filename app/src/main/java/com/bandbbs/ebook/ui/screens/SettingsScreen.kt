@@ -60,25 +60,17 @@ fun SettingsScreen(
     viewModel: MainViewModel,
     onBackClick: () -> Unit,
     onBackupClick: () -> Unit = {},
-    onRestoreClick: () -> Unit = {},
-    onBandSettingsClick: () -> Unit = {}
+    onRestoreClick: () -> Unit = {}
 ) {
     val showRecentImport by viewModel.showRecentImport.collectAsState()
     val showRecentUpdate by viewModel.showRecentUpdate.collectAsState()
     val showSearchBar by viewModel.showSearchBar.collectAsState()
-    val autoCheckUpdates by viewModel.autoCheckUpdates.collectAsState()
-    val ipCollectionAllowed by viewModel.ipCollectionAllowed.collectAsState()
-    val showConnectionError by viewModel.showConnectionError.collectAsState()
     val themeMode by viewModel.themeMode.collectAsState()
     val quickEditCategoryEnabled by viewModel.quickEditCategoryEnabled.collectAsState()
     val quickRenameCategoryEnabled by viewModel.quickRenameCategoryEnabled.collectAsState()
-    val autoMinimizeOnTransfer by viewModel.autoMinimizeOnTransfer.collectAsState()
-    val autoRetryOnTransferError by viewModel.autoRetryOnTransferError.collectAsState()
-    val bandTransferEnabled by viewModel.bandTransferEnabled.collectAsState()
 
     val showAboutSheet = remember { mutableStateOf(false) }
     val showDeleteReadingTimeDialog = remember { mutableStateOf(false) }
-    val showGetLatestVersionDialog = remember { mutableStateOf(false) }
     val showCleanDirtyDataDialog = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -105,23 +97,6 @@ fun SettingsScreen(
                 bottom = 40.dp
             )
         ) {
-            if (bandTransferEnabled) {
-                item {
-                    SmallTitle(text = "设备")
-                    Card(
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        insideMargin = PaddingValues(0.dp)
-                    ) {
-                        SuperArrow(
-                            title = "手环端设置",
-                            summary = "修改手环端的各项设置项",
-                            startAction = { SettingsIcon(MiuixIcons.Settings) },
-                            onClick = onBandSettingsClick
-                        )
-                    }
-                }
-            }
-
             item {
                 SmallTitle(text = "显示与交互")
                 Card(
@@ -216,100 +191,6 @@ fun SettingsScreen(
                             }
                         )
                     }
-                }
-            }
-
-            item {
-                SmallTitle(text = "同步与连接")
-                Card(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    insideMargin = PaddingValues(0.dp)
-                ) {
-                    BasicComponent(
-                        title = "小米手环传输",
-                        summary = "控制是否启用与小米手环的连接与传输功能",
-                        startAction = { SettingsIcon(MiuixIcons.Refresh) },
-                        endActions = {
-                            Switch(
-                                checked = bandTransferEnabled,
-                                onCheckedChange = { viewModel.setBandTransferEnabled(it) })
-                        }
-                    )
-                    if (bandTransferEnabled) {
-                        BasicComponent(
-                            title = "传输后自动后台",
-                            summary = "开始传输后自动将应用最小化",
-                            startAction = { SettingsIcon(MiuixIcons.Refresh) },
-                            endActions = {
-                                Switch(
-                                    checked = autoMinimizeOnTransfer,
-                                    onCheckedChange = { viewModel.setAutoMinimizeOnTransfer(it) })
-                            }
-                        )
-                        BasicComponent(
-                            title = "自动重试中断",
-                            summary = "传输中断时每5秒自动尝试重连",
-                            startAction = { SettingsIcon(MiuixIcons.Refresh) },
-                            endActions = {
-                                Switch(
-                                    checked = autoRetryOnTransferError,
-                                    onCheckedChange = { viewModel.setAutoRetryOnTransferError(it) })
-                            }
-                        )
-                        BasicComponent(
-                            title = "连接失败提示",
-                            summary = "连接手环失败时弹出详细提示",
-                            startAction = { SettingsIcon(MiuixIcons.Info) },
-                            endActions = {
-                                Switch(
-                                    checked = showConnectionError,
-                                    onCheckedChange = { viewModel.setShowConnectionError(it) })
-                            }
-                        )
-                    }
-                }
-            }
-
-            item {
-                SmallTitle(text = "更新与隐私")
-                Card(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    insideMargin = PaddingValues(0.dp)
-                ) {
-                    BasicComponent(
-                        title = "自动检查更新",
-                        summary = "应用启动时自动检测新版本",
-                        startAction = { SettingsIcon(MiuixIcons.Update) },
-                        endActions = {
-                            Switch(
-                                checked = autoCheckUpdates,
-                                onCheckedChange = { viewModel.setAutoCheckUpdates(it) })
-                        }
-                    )
-                    BasicComponent(
-                        title = "允许联网",
-                        summary = "允许应用联网以检查更新等功能",
-                        startAction = { SettingsIcon(MiuixIcons.Lock) },
-                        endActions = {
-                            Switch(
-                                checked = ipCollectionAllowed,
-                                onCheckedChange = { viewModel.setIpCollectionAllowed(it) })
-                        }
-                    )
-                    if (ipCollectionAllowed) {
-                        SuperArrow(
-                            title = "检查更新",
-                            summary = "手动检查应用版本更新",
-                            startAction = { SettingsIcon(MiuixIcons.Update) },
-                            onClick = { viewModel.checkForUpdates() }
-                        )
-                    }
-                    SuperArrow(
-                        title = "获取最新版本",
-                        summary = "跳转到所有版本的下载页面",
-                        startAction = { SettingsIcon(MiuixIcons.Download) },
-                        onClick = { showGetLatestVersionDialog.value = true }
-                    )
                 }
             }
 
@@ -433,37 +314,7 @@ fun SettingsScreen(
         }
     }
 
-    SuperDialog(
-        title = "各文件夹前缀介绍",
-        summary = "MiBand和BandPro前缀是给小米手环8Pro、9Pro用的\nRW前缀是给REDMI Watch5、6用的\nBand9前缀是给小米手环9和9NFC用的\nBand10前缀是给小米手环10用的",
-        show = showGetLatestVersionDialog,
-        onDismissRequest = { showGetLatestVersionDialog.value = false }
-    ) {
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            TextButton(
-                text = "取消",
-                onClick = { showGetLatestVersionDialog.value = false },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(Modifier.width(20.dp))
-            TextButton(
-                text = "确定",
-                onClick = {
-                    try {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://pan.quark.cn/s/47b6d6447142")
-                        )
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                    }
-                    showGetLatestVersionDialog.value = false
-                },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.textButtonColorsPrimary()
-            )
-        }
-    }
+
 
     AboutBottomSheet(show = showAboutSheet)
 }

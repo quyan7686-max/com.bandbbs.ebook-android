@@ -80,7 +80,7 @@ android {
 }
 
 dependencies {
-    implementation(files("./libs/xms-wearable-lib_1.4_release.aar"))?.let { implementation(it) }
+    // 移除手环SDK依赖
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("androidx.core:core-ktx:1.17.0")

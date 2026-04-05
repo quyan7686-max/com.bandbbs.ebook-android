@@ -1,13 +1,8 @@
 package com.bandbbs.ebook.ui.activity
 
-import android.Manifest
-import android.app.NotificationManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,14 +25,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -45,21 +38,11 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.ui.NavDisplay
-import com.bandbbs.ebook.App
-import com.bandbbs.ebook.logic.InterHandshake
-import com.bandbbs.ebook.notifications.ForegroundTransferService
-import com.bandbbs.ebook.notifications.LiveNotificationManager
-import com.bandbbs.ebook.ui.components.FirstSyncConfirmDialog
-import com.bandbbs.ebook.ui.components.IpCollectionPermissionDialog
-import com.bandbbs.ebook.ui.components.UpdateCheckBottomSheet
-import com.bandbbs.ebook.ui.screens.BandSettingsScreen
 import com.bandbbs.ebook.ui.screens.ChapterListScreen
 import com.bandbbs.ebook.ui.screens.MainScreen
-import com.bandbbs.ebook.ui.screens.PushScreen
 import com.bandbbs.ebook.ui.screens.ReaderScreen
 import com.bandbbs.ebook.ui.screens.SettingsScreen
 import com.bandbbs.ebook.ui.screens.StatisticsScreen
-import com.bandbbs.ebook.ui.screens.SyncOptionsScreen
 import com.bandbbs.ebook.ui.theme.EbookTheme
 import com.bandbbs.ebook.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -72,7 +55,6 @@ import top.yukonga.miuix.kmp.basic.NavigationBar
 import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.extra.SuperBottomSheet
 import top.yukonga.miuix.kmp.extra.SuperDialog
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Add
@@ -88,9 +70,6 @@ import java.util.Locale
 
 sealed interface Screen : NavKey {
     data object HomePager : Screen // 将原来的 Home、Statistics、Settings 整合为此 Pager 页面
-    data object BandSettings : Screen
-    data object SyncOptions : Screen
-    data object Push : Screen
     data object ChapterList : Screen
     data object Reader : Screen
 }
@@ -123,29 +102,9 @@ class MainActivity : ComponentActivity() {
             uri?.let { viewModel.restoreData(it) }
         }
 
-    private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ -> }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val conn = InterHandshake(this, lifecycleScope)
-        (application as App).conn = conn
-        viewModel.setConnection(conn)
-
-        val notifManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        LiveNotificationManager.initialize(applicationContext, notifManager)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
 
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val firstLaunchTutorial = !prefs.getBoolean("tutorial_shown", false)
@@ -168,12 +127,7 @@ class MainActivity : ComponentActivity() {
                 val chapterToPreview by viewModel.chapterToPreview.collectAsState()
                 val selectedBookForChapters by viewModel.selectedBookForChapters.collectAsState()
                 val chaptersForSelectedBook by viewModel.chaptersForSelectedBook.collectAsState()
-                val ipCollectionPermissionState by viewModel.ipCollectionPermissionState.collectAsState()
-                val updateCheckState by viewModel.updateCheckState.collectAsState()
                 val globalLoadingState by viewModel.globalLoadingState.collectAsState()
-                val syncOptionsState by viewModel.syncOptionsState.collectAsState()
-                val pushState by viewModel.pushState.collectAsState()
-                val firstSyncConfirmState by viewModel.firstSyncConfirmState.collectAsState()
 
                 val backStack = remember { mutableStateListOf<NavKey>(Screen.HomePager) }
                 val currentScreen = backStack.lastOrNull() ?: Screen.HomePager
@@ -196,22 +150,11 @@ class MainActivity : ComponentActivity() {
                     backStack.add(Screen.HomePager)
                 }
 
-                LaunchedEffect(syncOptionsState) {
-                    if (syncOptionsState != null) navigateTo(Screen.SyncOptions)
-                }
                 LaunchedEffect(selectedBookForChapters) {
                     if (selectedBookForChapters != null) navigateTo(Screen.ChapterList)
                 }
-                LaunchedEffect(pushState.book) {
-                    if (pushState.book != null) navigateTo(Screen.Push)
-                }
                 LaunchedEffect(chapterToPreview) {
                     if (chapterToPreview != null) navigateTo(Screen.Reader)
-                }
-
-                val showFirstSyncConfirmDialog = remember { mutableStateOf(false) }
-                LaunchedEffect(firstSyncConfirmState) {
-                    showFirstSyncConfirmDialog.value = firstSyncConfirmState != null
                 }
 
                 val showBottomBar = currentScreen is Screen.HomePager
@@ -294,8 +237,7 @@ class MainActivity : ComponentActivity() {
                                                     coverPickerLauncher.launch(
                                                         arrayOf("image/*")
                                                     )
-                                                },
-                                                onNavigateToSyncOptions = { navigateTo(Screen.SyncOptions) }
+                                                }
                                             )
 
                                             1 -> StatisticsScreen(
@@ -335,69 +277,10 @@ class MainActivity : ComponentActivity() {
                                                     openDocumentLauncher.launch(
                                                         arrayOf("application/json")
                                                     )
-                                                },
-                                                onBandSettingsClick = {
-                                                    if (viewModel.connectionState.value.isConnected) {
-                                                        viewModel.loadBandSettings()
-                                                        navigateTo(Screen.BandSettings)
-                                                    } else {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "请先连接手环",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    }
                                                 }
                                             )
                                         }
                                     }
-                                }
-                                entry<Screen.BandSettings> {
-                                    BandSettingsScreen(
-                                        viewModel = viewModel,
-                                        onBackClick = navigateBack
-                                    )
-                                }
-                                entry<Screen.SyncOptions> {
-                                    syncOptionsState?.let { state ->
-                                        SyncOptionsScreen(
-                                            state = state,
-                                            onBackClick = {
-                                                viewModel.cancelPush()
-                                                navigateBack()
-                                            },
-                                            onConfirm = { selectedChapters, syncCover ->
-                                                viewModel.confirmPush(
-                                                    state.book,
-                                                    selectedChapters,
-                                                    syncCover
-                                                )
-                                            },
-                                            onResyncCoverOnly = {
-                                                viewModel.cancelPush()
-                                                viewModel.syncCoverOnly(state.book)
-                                            },
-                                            onDeleteChapters = { chapterIndices ->
-                                                viewModel.deleteBandChapters(
-                                                    state.book,
-                                                    chapterIndices
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-                                entry<Screen.Push> {
-                                    PushScreen(
-                                        pushState = pushState,
-                                        onBackClick = {
-                                            viewModel.cancelPush()
-                                            navigateToHome()
-                                        },
-                                        onCancelOrDone = {
-                                            viewModel.cancelPush()
-                                            navigateToHome()
-                                        }
-                                    )
                                 }
                                 entry<Screen.ChapterList> {
                                     selectedBookForChapters?.let { book ->
@@ -510,7 +393,7 @@ class MainActivity : ComponentActivity() {
                         if (showTutorialState.value) {
                             SuperDialog(
                                 title = "首次使用提示",
-                                summary = "请将手机端同步器的电源选项设置为无限制，以保证传输不中断。\n\nColorOS16及以上用户：前往应用的通知管理，开启“流体云显示实时通知”以启用流体云显示。",
+                                summary = "欢迎使用弦电子书！这是一个功能强大的离线阅读器，支持多种格式的电子书。",
                                 show = showTutorialState,
                                 onDismissRequest = {
                                     markTutorialShown()
@@ -543,66 +426,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        val showIpSheetState = remember { mutableStateOf(false) }
-                        LaunchedEffect(ipCollectionPermissionState.showSheet) {
-                            showIpSheetState.value = ipCollectionPermissionState.showSheet
-                        }
-                        LaunchedEffect(showIpSheetState.value) {
-                            if (!showIpSheetState.value && ipCollectionPermissionState.showSheet) {
-                                viewModel.dismissIpCollectionPermissionSheet()
-                            }
-                        }
-                        IpCollectionPermissionDialog(
-                            show = showIpSheetState,
-                            isFirstTime = ipCollectionPermissionState.isFirstTime,
-                            onAllow = {
-                                scope.launch {
-                                    showIpSheetState.value = false
-                                    viewModel.onIpCollectionPermissionResult(true)
-                                }
-                            },
-                            onDeny = {
-                                scope.launch {
-                                    showIpSheetState.value = false
-                                    viewModel.onIpCollectionPermissionResult(false)
-                                }
-                            }
-                        )
-
-                        val showUpdateSheetState = remember { mutableStateOf(false) }
-                        LaunchedEffect(updateCheckState.showSheet) {
-                            showUpdateSheetState.value = updateCheckState.showSheet
-                        }
-                        SuperBottomSheet(
-                            show = showUpdateSheetState,
-                            title = "检查更新",
-                            onDismissRequest = {
-                                showUpdateSheetState.value = false
-                                viewModel.dismissUpdateCheck()
-                            }
-                        ) {
-                            UpdateCheckBottomSheet(
-                                isChecking = updateCheckState.isChecking,
-                                updateInfo = updateCheckState.updateInfo,
-                                updateInfoList = updateCheckState.updateInfoList,
-                                errorMessage = updateCheckState.errorMessage,
-                                deviceName = updateCheckState.deviceName,
-                                onDismiss = {
-                                    scope.launch {
-                                        showUpdateSheetState.value = false
-                                        viewModel.dismissUpdateCheck()
-                                    }
-                                },
-                                onOpenWebsite = {
-                                    val intent = Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse("https://vs.lucky-e.top")
-                                    )
-                                    context.startActivity(intent)
-                                }
-                            )
-                        }
-
                         val showLoadingState = remember { mutableStateOf(false) }
                         LaunchedEffect(globalLoadingState.isLoading) {
                             showLoadingState.value = globalLoadingState.isLoading
@@ -624,12 +447,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-
-                        FirstSyncConfirmDialog(
-                            show = showFirstSyncConfirmDialog,
-                            onConfirm = { viewModel.confirmFirstSync() },
-                            onCancel = { viewModel.cancelFirstSyncConfirm() }
-                        )
                     }
                 }
             }
@@ -637,61 +454,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun observeViewModelStates() {
-        var wasTransferring = false
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.pushState.collect { pushState ->
-                    if (pushState.isTransferring && !pushState.isFinished) {
-                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                    } else {
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                    }
-
-                    if (pushState.isTransferring) {
-                        val progressPercent =
-                            if (pushState.progress > 0.0) (pushState.progress * 100).toInt() else null
-                        val title = if (progressPercent != null) "$progressPercent%" else "传输中"
-                        ForegroundTransferService.startService(
-                            applicationContext,
-                            title,
-                            pushState.preview,
-                            progressPercent
-                        )
-
-                        if (!wasTransferring) {
-                            if (viewModel.autoMinimizeOnTransfer.value && !pushState.isFinished) {
-                                moveTaskToBack(true)
-                            }
-                            wasTransferring = true
-                        }
-                    } else {
-                        wasTransferring = false
-                        ForegroundTransferService.stopService(applicationContext)
-                    }
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.syncReadingDataState.collect { syncState ->
-                    val pushActive = viewModel.pushState.value.isTransferring
-                    if (syncState.isSyncing && !pushActive) {
-                        val progressPercent = (syncState.progress * 100).toInt()
-                        ForegroundTransferService.startService(
-                            applicationContext,
-                            "$progressPercent%",
-                            "数据同步中",
-                            progressPercent
-                        )
-                    } else if (!pushActive) {
-                        ForegroundTransferService.stopService(applicationContext)
-                    }
-                }
-            }
-        }
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.backupRestoreState.collect { state ->
@@ -710,11 +472,5 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         intent.data?.let { viewModel.startImport(it) }
     }
-
-    override fun onDestroy() {
-        lifecycleScope.launch {
-            (application as App).conn.destroy().await()
-        }
-        super.onDestroy()
-    }
 }
+
